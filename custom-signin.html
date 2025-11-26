@@ -109,9 +109,9 @@
             position: relative; 
             width: 100%; 
             padding-top: 6px; 
-            padding-bottom: 25px; /* Space for Forgot Password link */
+            padding-bottom: 6px; 
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 15px;
         }
 
         #api label {
@@ -122,7 +122,7 @@
             color: #333;
         }
 
-        /* INPUT SELECTOR */
+        /* INPUT SELECTOR - Covers all potential IDs */
         #api input[type="text"],
         #api input[type="email"],
         #api input[type="password"],
@@ -152,7 +152,7 @@
             color: white;
             border-radius: .5rem;
             font-size: 1em;
-            margin-top: 10px;
+            margin-top: 10px; /* ระยะห่างด้านบนปุ่ม */
             cursor: pointer;
             font-family: inherit;
             font-weight: 600;
@@ -161,19 +161,9 @@
             background-color: #1662c7;
         }
 
-        /* Forgot Password Link - FORCE BOTTOM RIGHT */
+        /* IMPORTANT: HIDE DEFAULT FORGOT PASSWORD LINK FROM B2C */
         #api .forgot-password, #api a#forgotPassword {
-            text-align: right;
-            display: block;
-            font-size: 0.9em;
-            color: #296ec6;
-            text-decoration: underline;
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: auto;
-            margin: 0;
-            z-index: 10;
+            display: none !important;
         }
         
         #api .create {
@@ -194,9 +184,26 @@
         }
 
         /* ========================================================================
-           PART 3: INSTRUCTION BOX STYLES
+           PART 3: INSTRUCTION & CUSTOM LINK STYLES
            ========================================================================
         */
+        
+        /* Custom Forgot Password Link Container */
+        .custom-forgot-password-container {
+            display: none; /* ซ่อนไว้ก่อน JS จะย้ายเข้าที่ */
+            text-align: right;
+            margin-bottom: 10px; /* ระยะห่างระหว่างลิงก์กับปุ่ม Sign In */
+            margin-top: -5px; /* ดึงขึ้นเล็กน้อยให้ชิด Password */
+        }
+        
+        #customForgotPassword {
+            font-size: 0.9em;
+            color: #296ec6;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
         .userid-explanation {
             margin-top: 30px;
             margin-bottom: 10px;
@@ -255,6 +262,11 @@
                         <div id="api" role="main">
                         </div>
 
+                        <!-- CUSTOM FORGOT PASSWORD LINK (Hidden initially) -->
+                        <div class="custom-forgot-password-container">
+                            <a id="customForgotPassword">Forgot your password?</a>
+                        </div>
+
                         <!-- Instruction Box -->
                         <div class="userid-explanation">
                             <p class="title">Username (ชื่อบัญชีผู้ใช้งาน):</p>
@@ -267,7 +279,7 @@
                             <ul>
                                 <li>ตัวอักษรภาษาอังกฤษทั้งพิมพ์ใหญ่ – พิมพ์เล็ก</li>
                                 <li>ตัวเลข และอักขระพิเศษ เช่น !, @, #, $</li>
-                                <li>ความยาว 8 - 64 ตัวอักษร</li>
+                                <li>ความยาว 8 - 16 ตัวอักษร</li>
                             </ul>
                         </div>
                     </div>
@@ -278,16 +290,16 @@
 
     <!-- 
         ========================================================================
-        JAVASCRIPT FOR CUSTOM PASSWORD RESET REDIRECT (DYNAMIC VERSION - FIXED)
+        JAVASCRIPT FOR CUSTOM PASSWORD RESET & DOM MANIPULATION
         ========================================================================
     -->
     <script>
         (function() {
-            // 1. กำหนดค่า Static Configuration (Tenant & User Flow)
+            // 1. Configuration
             var tenantName = "QASThaioilB2C"; 
             var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; 
 
-            // 2. ฟังก์ชันดึงค่าจาก URL
+            // 2. Helper to retrieve URL params
             function getUrlParameter(name) {
                 name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
                 var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -295,26 +307,44 @@
                 return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
             }
 
-            function setupCustomForgotPasswordLink() {
-                var forgotPasswordLink = document.getElementById('forgotPassword');
+            // 3. Function to move Custom Link INTO the Form
+            function moveCustomLinkToForm() {
+                var apiDiv = document.getElementById('api');
+                var customLinkContainer = document.querySelector('.custom-forgot-password-container');
                 
-                if (forgotPasswordLink) {
-                    forgotPasswordLink.addEventListener('click', function(e) {
+                // ค้นหาปุ่ม Sign In (หรือ div .buttons)
+                var buttonsDiv = apiDiv ? apiDiv.querySelector('.buttons') : null;
+
+                // ถ้าย้ายยังไม่สำเร็จ และเจอองค์ประกอบครบ
+                if (apiDiv && customLinkContainer && buttonsDiv && customLinkContainer.parentNode !== buttonsDiv.parentNode) {
+                    // ย้าย Link ไปแทรก "ก่อนหน้า" ปุ่ม Sign In
+                    buttonsDiv.parentNode.insertBefore(customLinkContainer, buttonsDiv);
+                    // แสดงผล Link
+                    customLinkContainer.style.display = 'block';
+                }
+            }
+
+            // 4. Setup Click Logic
+            function setupCustomLinkAction() {
+                var customLink = document.getElementById('customForgotPassword');
+                
+                if (customLink) {
+                    // Remove existing listeners to prevent duplicates (just in case)
+                    var newLink = customLink.cloneNode(true);
+                    customLink.parentNode.replaceChild(newLink, customLink);
+                    customLink = newLink;
+
+                    customLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         
-                        // Retrieve dynamic parameters from current URL
                         var clientId = getUrlParameter('client_id');
                         var redirectUri = getUrlParameter('redirect_uri');
                         
-                        // Validation
                         if (!clientId || !redirectUri) {
-                            console.error("Missing client_id or redirect_uri in the URL. Cannot construct reset URL.");
+                            console.error("Missing client_id or redirect_uri");
                             return; 
                         }
 
-                        // Construct the Password Reset URL according to requirement
-                        // Format: https://<tenant>.b2clogin.com/<tenant>.onmicrosoft.com/oauth2/v2.0/authorize?p=<policy>&...
-                        
                         var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/oauth2/v2.0/authorize?" +
                             "p=" + passwordResetPolicyId +
                             "&client_id=" + clientId +
@@ -324,31 +354,33 @@
                             "&response_type=id_token" +
                             "&prompt=login";
 
-                        // Redirect user
                         window.location.href = resetUrl;
                     });
                 }
             }
 
-            // Observe for B2C injection
+            // 5. Observer & Initialization
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    if (document.getElementById('forgotPassword')) {
-                        setupCustomForgotPasswordLink();
+                    // เมื่อ B2C render ปุ่ม Sign In เสร็จ ให้ย้าย Link ของเราเข้าไป
+                    if (document.querySelector('#api .buttons')) {
+                        moveCustomLinkToForm();
                     }
                 });
             });
 
-            // Start observing
             var apiDiv = document.getElementById('api');
             if(apiDiv) {
                 observer.observe(apiDiv, { childList: true, subtree: true });
             }
             
-            // Handle case where element might already exist on load
-            window.addEventListener('load', setupCustomForgotPasswordLink);
+            // เรียกใช้งานครั้งแรก (เผื่อ DOM พร้อมแล้ว)
+            window.addEventListener('load', function() {
+                setupCustomLinkAction();
+                moveCustomLinkToForm();
+            });
 
-            // Mock for Preview (Remove on Prod if needed, but harmless)
+            // Mock for Preview (To verify position)
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
                 apiDiv.innerHTML = `
                     <div class="localAccount">
@@ -360,14 +392,19 @@
                             <div class="entry-item">
                                 <label for="password">Password</label>
                                 <input type="password" id="password" name="Password" placeholder="Enter your password">
+                                <!-- Original B2C link hidden by CSS -->
                                 <a href="#" id="forgotPassword">Forgot your password?</a>
                             </div>
+                            <!-- Link should be moved HERE by JS -->
                             <div class="buttons">
                                 <button id="next">Sign In</button>
                             </div>
                         </div>
                     </div>
                 `;
+                // Manually trigger move for mock
+                setTimeout(moveCustomLinkToForm, 100);
+                setupCustomLinkAction();
             }
         })();
     </script>
