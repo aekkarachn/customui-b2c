@@ -278,16 +278,16 @@
 
     <!-- 
         ========================================================================
-        JAVASCRIPT FOR CUSTOM PASSWORD RESET REDIRECT (DYNAMIC VERSION)
+        JAVASCRIPT FOR CUSTOM PASSWORD RESET REDIRECT (DYNAMIC VERSION - FIXED)
         ========================================================================
     -->
     <script>
         (function() {
-            // 1. กำหนดค่า Static Configuration (ค่าที่ไม่เปลี่ยนตาม Request)
-            var tenantName = "QASThaioilB2C"; // ชื่อ Tenant ของคุณ
-            var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; // ชื่อ User Flow สำหรับ Reset Password
+            // 1. กำหนดค่า Static Configuration (Tenant & User Flow)
+            var tenantName = "QASThaioilB2C"; 
+            var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; 
 
-            // 2. ฟังก์ชันดึงค่าจาก URL (Dynamic Configuration)
+            // 2. ฟังก์ชันดึงค่าจาก URL
             function getUrlParameter(name) {
                 name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
                 var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -302,35 +302,35 @@
                     forgotPasswordLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         
-                        // ดึงค่า client_id และ redirect_uri จาก URL ปัจจุบัน
+                        // Retrieve dynamic parameters from current URL
                         var clientId = getUrlParameter('client_id');
                         var redirectUri = getUrlParameter('redirect_uri');
-                        var nonce = getUrlParameter('nonce') || 'default-nonce';
                         
-                        // ตรวจสอบว่ามีค่าครบหรือไม่
+                        // Validation
                         if (!clientId || !redirectUri) {
-                            console.error("Missing client_id or redirect_uri in the URL");
-                            // Fallback (ถ้าต้องการ) หรือแจ้งเตือนผู้ใช้
+                            console.error("Missing client_id or redirect_uri in the URL. Cannot construct reset URL.");
                             return; 
                         }
 
-                        // สร้าง URL สำหรับ Redirect
-                        var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/" + passwordResetPolicyId + "/oauth2/v2.0/authorize?" +
-                            "client_id=" + clientId +
-                            "&response_type=id_token" + // ใช้ id_token ตามตัวอย่าง URL ของคุณ
+                        // Construct the Password Reset URL according to requirement
+                        // Format: https://<tenant>.b2clogin.com/<tenant>.onmicrosoft.com/oauth2/v2.0/authorize?p=<policy>&...
+                        
+                        var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/oauth2/v2.0/authorize?" +
+                            "p=" + passwordResetPolicyId +
+                            "&client_id=" + clientId +
+                            "&nonce=defaultNonce" +
                             "&redirect_uri=" + encodeURIComponent(redirectUri) +
-                            "&response_mode=fragment" + // ใช้ fragment ตามตัวอย่าง URL ของคุณ
-                            "&scope=openid profile offline_access" + // Scope มาตรฐาน
-                            "&state=arbitrary_state_string" + 
-                            "&nonce=" + nonce;
+                            "&scope=openid" +
+                            "&response_type=id_token" +
+                            "&prompt=login";
 
-                        // สั่ง Redirect
+                        // Redirect user
                         window.location.href = resetUrl;
                     });
                 }
             }
 
-            // ใช้ MutationObserver เพื่อคอยดูว่า B2C Inject ปุ่มเข้ามาหรือยัง
+            // Observe for B2C injection
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (document.getElementById('forgotPassword')) {
@@ -339,16 +339,16 @@
                 });
             });
 
-            // เริ่มสังเกตการณ์ที่ div id="api"
+            // Start observing
             var apiDiv = document.getElementById('api');
             if(apiDiv) {
                 observer.observe(apiDiv, { childList: true, subtree: true });
             }
             
-            // กรณีที่มีอยู่แล้วตอนโหลด
+            // Handle case where element might already exist on load
             window.addEventListener('load', setupCustomForgotPasswordLink);
 
-            // Mock สำหรับ Preview ใน Canvas เท่านั้น (ลบส่วนนี้ได้เมื่อ Deploy)
+            // Mock for Preview (Remove on Prod if needed, but harmless)
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
                 apiDiv.innerHTML = `
                     <div class="localAccount">
