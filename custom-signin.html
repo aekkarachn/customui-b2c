@@ -72,11 +72,12 @@
         .unified_container .row .panel-default {
             padding: 40px 30px;
             margin: 0 auto;
-            height: auto;
+            height: auto; /* ให้สูงตามเนื้อหา */
             background-color: #fff;
             border-radius: .5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             width: 100%;
+            overflow: visible; /* สำคัญ: ห้ามซ่อนเนื้อหาที่ล้น */
         }
 
         .unified_container .row .panel-default .panel-body {
@@ -84,6 +85,13 @@
             width: auto; 
             margin: 0 auto; 
             padding: 0;
+            /* Clearfix: ป้องกันปัญหาเนื้อหาหายถ้าระบบใช้ float */
+            display: block;
+        }
+        .unified_container .row .panel-default .panel-body::after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         .unified_container .row .panel-default .panel-body .companyLogo {
@@ -104,7 +112,6 @@
             display: none; 
         }
 
-        /* Entry Item Layout */
         #api .entry .entry-item {
             position: relative; 
             width: 100%; 
@@ -122,7 +129,7 @@
             color: #333;
         }
 
-        /* INPUT SELECTOR - Covers all potential IDs */
+        /* INPUT SELECTOR */
         #api input[type="text"],
         #api input[type="email"],
         #api input[type="password"],
@@ -152,7 +159,7 @@
             color: white;
             border-radius: .5rem;
             font-size: 1em;
-            margin-top: 10px; /* ระยะห่างด้านบนปุ่ม */
+            margin-top: 10px;
             cursor: pointer;
             font-family: inherit;
             font-weight: 600;
@@ -162,7 +169,10 @@
         }
 
         /* IMPORTANT: HIDE DEFAULT FORGOT PASSWORD LINK FROM B2C */
-        #api .forgot-password, #api a#forgotPassword {
+        /* ซ่อนลิงก์เดิมของ B2C ทุกกรณี */
+        #api .forgot-password, 
+        #api a#forgotPassword,
+        #api .entry-item a {
             display: none !important;
         }
         
@@ -188,14 +198,15 @@
            ========================================================================
         */
         
-        /* Custom Forgot Password Link Container 
-           (Placed OUTSIDE #api, positioned below the form) 
-        */
+        /* Custom Forgot Password Link Container */
         .custom-forgot-password-container {
             text-align: right;
-            margin-top: 10px;
+            margin-top: 15px; /* เว้นระยะห่างจากปุ่ม Sign In */
             margin-bottom: 20px;
-            display: block; /* Ensure it's visible */
+            display: block;
+            clear: both; /* ป้องกันการลอยตัวซ้อนทับ */
+            position: relative;
+            z-index: 100; /* บังคับให้แสดงอยู่บนสุด */
         }
         
         #customForgotPassword {
@@ -207,11 +218,12 @@
         }
 
         .userid-explanation {
-            margin-top: 30px;
+            margin-top: 20px;
             margin-bottom: 10px;
             text-align: left;
             border-top: 1px solid #eeeeee;
             padding-top: 20px;
+            clear: both;
         }
         .userid-explanation .title {
             padding: 0 4px;
@@ -241,6 +253,46 @@
             .container { background-color: #f0f0f0; }
         }
     </style>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        function onCustomForgotPasswordClick(event) {
+            if (event) event.preventDefault();
+            
+            // 1. Static Configuration
+            var tenantName = "QASThaioilB2C"; 
+            var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; 
+            
+            // Default Values (ใช้กรณี URL ไม่มี parameter)
+            var defaultClientId = "17fa95e8-72c8-4b83-bc4f-a8aea03dde93"; 
+            var defaultRedirectUri = "https://qthaioilsmartbiz.thaioilgroup.com/";
+
+            // 2. Retrieve Params
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(window.location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            var clientId = getUrlParameter('client_id') || defaultClientId;
+            var redirectUri = getUrlParameter('redirect_uri') || defaultRedirectUri;
+            
+            // Log for debugging
+            console.log("Reset PW Clicked. ClientID:", clientId, "RedirectURI:", redirectUri);
+
+            var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/oauth2/v2.0/authorize?" +
+                "p=" + passwordResetPolicyId +
+                "&client_id=" + clientId +
+                "&nonce=defaultNonce" +
+                "&redirect_uri=" + encodeURIComponent(redirectUri) +
+                "&scope=openid" +
+                "&response_type=id_token" +
+                "&prompt=login";
+
+            window.location.href = resetUrl;
+        }
+    </script>
 </head>
 <body>
     
@@ -265,11 +317,11 @@
                         </div>
 
                         <!-- 
-                            CUSTOM FORGOT PASSWORD LINK (PLACED OUTSIDE API) 
-                            This will NOT be cleared by B2C injection.
+                            CUSTOM FORGOT PASSWORD LINK
+                            วางไว้ต่อจาก API ตรงๆ (อยู่ใต้ปุ่ม Sign In) เพื่อความชัวร์
                         -->
                         <div class="custom-forgot-password-container">
-                            <a id="customForgotPassword">Forgot your password?</a>
+                            <a id="customForgotPassword" href="#" onclick="onCustomForgotPasswordClick(event)">Forgot your password?</a>
                         </div>
 
                         <!-- Instruction Box -->
@@ -284,7 +336,7 @@
                             <ul>
                                 <li>ตัวอักษรภาษาอังกฤษทั้งพิมพ์ใหญ่ – พิมพ์เล็ก</li>
                                 <li>ตัวเลข และอักขระพิเศษ เช่น !, @, #, $</li>
-                                <li>ความยาว 8 - 64 ตัวอักษร</li>
+                                <li>ความยาว 8 - 16 ตัวอักษร</li>
                             </ul>
                         </div>
                     </div>
@@ -293,67 +345,9 @@
         </div>
     </div>
 
-    <!-- 
-        ========================================================================
-        JAVASCRIPT FOR CUSTOM PASSWORD RESET
-        ========================================================================
-    -->
+    <!-- Mock for Preview (Simulates B2C injection) -->
     <script>
-        (function() {
-            // 1. Configuration
-            var tenantName = "QASThaioilB2C"; 
-            var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; 
-
-            // 2. Helper to retrieve URL params
-            function getUrlParameter(name) {
-                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-                var results = regex.exec(window.location.search);
-                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-            }
-
-            // 3. Setup Click Logic (Simplified - No moving needed)
-            function setupCustomLinkAction() {
-                var customLink = document.getElementById('customForgotPassword');
-                
-                if (customLink) {
-                    // Remove existing listeners to prevent duplicates
-                    var newLink = customLink.cloneNode(true);
-                    customLink.parentNode.replaceChild(newLink, customLink);
-                    customLink = newLink;
-
-                    customLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        
-                        var clientId = getUrlParameter('client_id');
-                        var redirectUri = getUrlParameter('redirect_uri');
-                        
-                        if (!clientId || !redirectUri) {
-                            console.error("Missing client_id or redirect_uri");
-                            return; 
-                        }
-
-                        var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/oauth2/v2.0/authorize?" +
-                            "p=" + passwordResetPolicyId +
-                            "&client_id=" + clientId +
-                            "&nonce=defaultNonce" +
-                            "&redirect_uri=" + encodeURIComponent(redirectUri) +
-                            "&scope=openid" +
-                            "&response_type=id_token" +
-                            "&prompt=login";
-
-                        window.location.href = resetUrl;
-                    });
-                }
-            }
-            
-            // เรียกใช้งานทันทีเมื่อโหลดหน้า (เพราะปุ่มของเราอยู่ใน HTML แล้ว ไม่ได้รอ Inject)
-            window.addEventListener('load', setupCustomLinkAction);
-            
-            // เรียกซ้ำอีกครั้งเพื่อความชัวร์ (กรณี Script ทำงานก่อน DOM Ready)
-            setupCustomLinkAction();
-
-            // Mock for Preview (To verify visual layout)
+        window.onload = function() {
             var apiDiv = document.getElementById('api');
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
                 apiDiv.innerHTML = `
@@ -366,7 +360,7 @@
                             <div class="entry-item">
                                 <label for="password">Password</label>
                                 <input type="password" id="password" name="Password" placeholder="Enter your password">
-                                <!-- Default B2C link (Hidden by CSS) -->
+                                <!-- B2C Link (Will be hidden by CSS) -->
                                 <a href="#" id="forgotPassword">Forgot your password?</a>
                             </div>
                             <div class="buttons">
@@ -376,8 +370,7 @@
                     </div>
                 `;
             }
-        })();
+        };
     </script>
 </body>
 </html>
-
