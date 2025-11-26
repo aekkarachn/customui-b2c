@@ -15,10 +15,20 @@
     <!-- Bootstrap CSS (Original Link) -->
     <link href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
+    <!-- 
+        ========================================================================
+        PART 1: CSS STYLES (คัดลอกมาจาก idpSelector.cshtml ต้นฉบับ)
+        ========================================================================
+    -->
     <style id="common">
+        /* Note: 'Google Sans' is a proprietary font. 
+           If not installed locally or hosted, it will fallback to 'Noto Sans Thai' or system sans-serif. 
+        */
+        
         /* General Layout Styles */
         html { background: 0 0; }
         body {
+            /* UPDATED: Font Family to Google Sans and Noto Sans Thai */
             font-family: 'Google Sans', 'Noto Sans Thai', 'Segoe UI', "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-attachment: fixed;
             background-color: #fff;
@@ -30,114 +40,60 @@
             margin: 0;
             padding: 0;
         }
+        p { margin: 0; }
+        a { text-decoration: underline; text-decoration-thickness: 1px; color: #296ec6; cursor: pointer;}
+        a:focus { outline: 0; border: 2px solid #000; }
+        input, select { border: 1px solid #605e5c; }
+        input::placeholder { color: #6a6a6a; opacity: 1; }
         
-        /* Background & Logo */
+        /* Background Image Handling */
         img[data-tenant-branding-background=true] {
             width: 100%; height: 100%; object-fit: cover; z-index: 0; position: fixed; left: 0; overflow: hidden; top: 0;
         }
         div[data-tenant-branding-background-color=true] {
             width: 100%; height: 100%; position: fixed; z-index: 0;
         }
-
-        /* ========================================================================
-           PART 1: LAYOUT & CENTERING FIXES
-           ========================================================================
-        */
-        .container { 
-            text-align: center; 
-            width: 100%; 
-            display: table; 
-            height: 100vh; 
-            padding: 0; 
-            position: relative; 
-            z-index: 1;
-        }
         
-        .row {
-            width: 100%;
-            margin: 0;
-            display: table-cell;
-            vertical-align: middle;
-        }
-
-        .col-lg-6 {
-            max-width: 470px;
-            width: 100%;
-            float: none;
-            display: inline-block;
-            vertical-align: middle;
-            padding: 0;
-        }
-
+        /* Container Layout */
+        .container { text-align: center; width: 100%; display: table; height: 100vh; padding: 0; position: relative; z-index: 1;}
+        #api { margin: 0 auto; }
+        .heading h1 { margin-bottom: 20px; }
+        .col-lg-6 { max-width: 470px; width: 100%; float: none; display: inline-block; vertical-align: top; padding: 0; }
+        .row { width: 100%; margin: 0; display: table-cell; vertical-align: middle; }
+        
+        /* Unified Container Styles */
         .unified_container .row .panel-default {
             padding: 40px 30px;
-            margin: 0 auto;
-            height: auto; /* ให้สูงตามเนื้อหา */
+            margin-top: auto;
+            margin-bottom: auto;
+            height: auto;
+            min-height: 300px; /* Reduced min-height since content is less */
             background-color: #fff;
             border-radius: .5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            width: 100%;
-            overflow: visible; /* สำคัญ: ห้ามซ่อนเนื้อหาที่ล้น */
         }
-
         .unified_container .row .panel-default .panel-body {
-            max-width: 380px; 
-            width: auto; 
-            margin: 0 auto; 
-            padding: 0;
-            /* Clearfix: ป้องกันปัญหาเนื้อหาหายถ้าระบบใช้ float */
-            display: block;
+            max-width: 380px; width: auto; margin: 0 auto; padding: 0;
         }
-        .unified_container .row .panel-default .panel-body::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
         .unified_container .row .panel-default .panel-body .companyLogo {
-            display: block; 
-            max-width: 100%; 
-            width: auto; 
-            height: 80px; 
-            margin: 0 auto 20px auto; 
-            object-fit: contain;
+            display: block; max-width: 100%; width: auto; height: 80px; /* Increased height slightly for visibility */
+            margin: 0 auto 20px auto;
+            object-fit: contain; /* Ensure logo fits within dimensions */
         }
-
-        /* ========================================================================
-           PART 2: B2C SPECIFIC OVERRIDES (Custom UI)
-           ========================================================================
-        */
         
-        #api .heading, #api .intro {
-            display: none; 
+        /* API Section Layout */
+        .unified_container .row .panel-default #api { display: table; margin: 0; width: 100%; }
+        
+        /* Form Inputs */
+        .unified_container .row .panel-default #api .localAccount .entry .entry-item {
+            position: relative; width: 100%; padding-top: 6px; padding-bottom: 6px; display: block;
         }
-
-        #api .entry .entry-item {
-            position: relative; 
-            width: 100%; 
-            padding-top: 6px; 
-            padding-bottom: 6px; 
-            display: block;
-            margin-bottom: 15px;
+        .unified_container .row .panel-default #api .localAccount .entry .entry-item label {
+            display: block; text-align: left; font-weight: 600; margin-bottom: 5px;
         }
-
-        #api label {
-            display: block; 
-            text-align: left; 
-            font-weight: 600; 
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        /* INPUT SELECTOR */
-        #api input[type="text"],
-        #api input[type="email"],
-        #api input[type="password"],
-        #api input#logonIdentifier, 
-        #api input#signInName {
+        .unified_container .row .panel-default #api .localAccount .entry .entry-item input {
             outline: 0;
             background-color: #fff !important;
-            border: 1px solid #605e5c !important;
             border-radius: .5rem !important;
             color: #555;
             display: inline-block;
@@ -147,11 +103,11 @@
             padding: 6px 12px;
             width: 100% !important;
             box-sizing: border-box;
-            font-family: inherit;
+            font-family: inherit; /* Ensure input inherits the new font */
         }
 
-        /* Sign In Button */
-        #api #next {
+        /* Form Buttons */
+        .buttons button {
             width: 100%;
             height: 45px;
             background-color: #296ec6;
@@ -159,186 +115,107 @@
             color: white;
             border-radius: .5rem;
             font-size: 1em;
-            margin-top: 10px;
+            margin-top: 20px;
             cursor: pointer;
-            font-family: inherit;
+            font-family: inherit; /* Ensure button inherits the new font */
             font-weight: 600;
         }
-        #api #next:hover {
+        .buttons button:hover {
             background-color: #1662c7;
         }
-
-        /* IMPORTANT: HIDE DEFAULT FORGOT PASSWORD LINK FROM B2C */
-        /* ซ่อนลิงก์เดิมของ B2C ทุกกรณี */
-        #api .forgot-password, 
-        #api a#forgotPassword,
-        #api .entry-item a {
-            display: none !important;
-        }
         
-        #api .create {
-            display: none;
-        }
-
-        #api .error.itemLevel {
-            color: #a61e0c;
+        /* Links */
+        .create p, .forgot-password {
+            margin-top: 15px;
             text-align: left;
             font-size: 0.9em;
-            margin-top: 5px;
-            display: block;
         }
-        #api .error.pageLevel {
-            color: #a61e0c;
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        /* ========================================================================
-           PART 3: INSTRUCTION & CUSTOM LINK STYLES
-           ========================================================================
-        */
-        
-        /* Custom Forgot Password Link Container */
-        .custom-forgot-password-container {
+        .forgot-password {
             text-align: right;
-            margin-top: 15px; /* เว้นระยะห่างจากปุ่ม Sign In */
-            margin-bottom: 20px;
             display: block;
-            clear: both; /* ป้องกันการลอยตัวซ้อนทับ */
-            position: relative;
-            z-index: 100; /* บังคับให้แสดงอยู่บนสุด */
-        }
-        
-        #customForgotPassword {
-            font-size: 0.9em;
-            color: #296ec6;
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: normal;
+            margin-top: 5px;
         }
 
+        /* NEW STYLE: User ID Explanation Box 
+           Converting Tailwind classes to CSS
+        */
         .userid-explanation {
-            margin-top: 20px;
+            margin-top: 30px; /* Added margin-top for spacing from the form */
             margin-bottom: 10px;
             text-align: left;
-            border-top: 1px solid #eeeeee;
+            border-top: 1px solid #eeeeee; /* Optional: adds a faint separator line */
             padding-top: 20px;
-            clear: both;
         }
         .userid-explanation .title {
-            padding: 0 4px;
-            font-size: 0.85em;
-            color: #4b5563;
-            font-weight: bold;
-            margin-bottom: 8px;
+            padding: 0 4px; /* px-1 */
+            font-size: 0.85em; /* text-xs */
+            color: #4b5563; /* text-gray-600 */
+            font-weight: bold; /* font-bold */
+            margin-bottom: 8px; /* mb-2 */
         }
         .userid-explanation ul {
-            list-style-type: disc;
-            list-style-position: inside;
-            padding: 0 4px;
-            margin-top: 4px;
+            list-style-type: disc; /* list-disc */
+            list-style-position: inside; /* list-inside */
+            padding: 0 4px; /* px-1 */
+            margin-top: 4px; /* mt-1 */
             padding-left: 10px;
         }
         .userid-explanation ul li {
+            font-size: 0.85em; /* text-xs */
+            color: #6b7280; /* text-gray-500 */
+            margin-bottom: 4px; /* space-y-2 */
+            line-height: 1.5;
+        }
+        
+        .userid-explanation p:not(.title) {
+            padding-left: 14px; /* mimic list indentation for plain p tags if used */
             font-size: 0.85em;
             color: #6b7280;
             margin-bottom: 4px;
-            line-height: 1.5;
         }
 
+        /* Media Queries for Mobile (from original) */
         @media (max-width: 600px) {
             .container.unified_container .row .panel.panel-default .panel-body { padding: 2rem 1rem; }
             .unified_container .row .panel-default { height: auto; padding: 20px; }
-            img[data-tenant-branding-background=true] { display: none; }
-            .container { background-color: #f0f0f0; }
+            img[data-tenant-branding-background=true] { display: none; } /* Hide bg on mobile */
+            .container { background-color: #f0f0f0; } /* Fallback bg */
         }
     </style>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // 1. Static Configuration
-            var tenantName = "QASThaioilB2C"; 
-            var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; 
-            
-            // Default Values (ใช้กรณี URL ไม่มี parameter)
-            var defaultClientId = "17fa95e8-72c8-4b83-bc4f-a8aea03dde93"; 
-            var defaultRedirectUri = "https://qthaioilsmartbiz.thaioilgroup.com";
-
-            // 2. Retrieve Params
-            function getUrlParameter(name) {
-                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-                var results = regex.exec(window.location.search);
-                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-            }
-
-            var clientId = getUrlParameter('client_id') || defaultClientId;
-            var redirectUri = getUrlParameter('redirect_uri') || defaultRedirectUri;
-            
-            // Log for debugging
-            console.log("Generating Reset PW Link. ClientID:", clientId, "RedirectURI:", redirectUri);
-
-            // Construct URL
-            var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/oauth2/v2.0/authorize?" +
-                "p=" + passwordResetPolicyId +
-                "&client_id=" + clientId +
-                "&nonce=defaultNonce" +
-                "&redirect_uri=" + encodeURIComponent(redirectUri) +
-                "&scope=openid" +
-                "&response_type=id_token" +
-                "&prompt=login";
-
-            // Set href directly (More robust than onclick)
-            var linkElement = document.getElementById('customForgotPassword');
-            if (linkElement) {
-                linkElement.href = resetUrl;
-            } else {
-                console.error("Link element 'customForgotPassword' not found!");
-            }
-        });
-    </script>
 </head>
 <body>
     
+    <!-- Background Image Container -->
     <div id="background_branding_container" data-tenant-branding-background-color="true">
+      <!-- Changed Background Image URL -->
       <img data-tenant-branding-background="true" src="https://lh3.googleusercontent.com/d/1XhWzByGqB-5SAw-hoXz7qTi4BZmLOoBU" alt="Background Image"/>
     </div>
 
+    <!-- Main Content Container -->
     <div class="container unified_container" role="presentation">
         <div class="row">
             <div class="col-lg-6">
                 <div class="panel panel-default">
                     <div class="panel-body">
+                        <!-- Company Logo: Changed URL -->
                         <img class="companyLogo" data-tenant-branding-logo="true" src="https://lh3.googleusercontent.com/d/1UcyeC28nAw3iBZYW0ILPUBDtHKmqX0aF" alt="Company Logo">
                         
-                        <!-- Custom Header -->
-                        <div class="custom-header">
-                            <h3 style="text-align: center; margin-bottom: 25px; font-size: 1.5em; font-weight: bold; color: #333;">Sign In</h3>
-                        </div>
-
-                        <!-- B2C API Injection Point -->
                         <div id="api" role="main">
+							<!-- Ingest data from B2C -->
                         </div>
-
-                        <!-- 
-                            CUSTOM FORGOT PASSWORD LINK
-                            วางไว้ต่อจาก API ตรงๆ (อยู่ใต้ปุ่ม Sign In) เพื่อความชัวร์
-                        -->
-                        <div class="custom-forgot-password-container">
-                            <!-- เริ่มต้นเป็น href="#" แล้ว Script จะมาแก้ให้ -->
-                            <a id="customForgotPassword" href="#">Forgot your password?</a>
-                        </div>
-
-                        <!-- Instruction Box -->
                         <div class="userid-explanation">
-                            <p class="title">Username (ชื่อบัญชีผู้ใช้งาน):</p>
+                            <p class="title">
+                                Username (ชื่อบัญชีผู้ใช้งาน): 
+                            </p>
+                            <!-- Using list for better structure with bullets -->
                             <ul>
                                 <li>รูปแบบ: zz ตามด้วย ชื่อจริง + นามสกุล (ติดกัน, ตัวพิมพ์เล็ก)</li>
                                 <li>ตัวอย่าง: Aliyah Chan</li>
                                 <li>Username: zzaliyahc</li>
                             </ul>
-                            <p class="title" style="margin-top: 15px;">Password (รหัสผ่าน):</p>
+                            <p class="title" style="margin-top: 15px;">
+                                Password (รหัสผ่าน):
+                            </p>
                             <ul>
                                 <li>ตัวอักษรภาษาอังกฤษทั้งพิมพ์ใหญ่ – พิมพ์เล็ก</li>
                                 <li>ตัวเลข และอักขระพิเศษ เช่น !, @, #, $</li>
@@ -350,33 +227,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Mock for Preview (Simulates B2C injection) -->
-    <script>
-        window.onload = function() {
-            var apiDiv = document.getElementById('api');
-            if (apiDiv && apiDiv.innerHTML.trim() === "") {
-                apiDiv.innerHTML = `
-                    <div class="localAccount">
-                        <div class="entry">
-                            <div class="entry-item">
-                                <label for="signInName">User ID</label>
-                                <input type="text" id="signInName" name="SignInName" placeholder="Enter your User ID">
-                            </div>
-                            <div class="entry-item">
-                                <label for="password">Password</label>
-                                <input type="password" id="password" name="Password" placeholder="Enter your password">
-                                <!-- B2C Link (Will be hidden by CSS) -->
-                                <a href="#" id="forgotPassword">Forgot your password?</a>
-                            </div>
-                            <div class="buttons">
-                                <button id="next">Sign In</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        };
-    </script>
 </body>
 </html>
