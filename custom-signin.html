@@ -122,9 +122,7 @@
             color: #333;
         }
 
-        /* UPDATED SELECTOR: Target ALL text/password inputs 
-           This fixes the issue where username ID might be 'signInName', 'email', or 'logonIdentifier'
-        */
+        /* INPUT SELECTOR */
         #api input[type="text"],
         #api input[type="email"],
         #api input[type="password"],
@@ -278,17 +276,85 @@
         </div>
     </div>
 
-    <!-- Script for Preview Only -->
+    <!-- 
+        ========================================================================
+        JAVASCRIPT FOR CUSTOM PASSWORD RESET REDIRECT (DYNAMIC VERSION)
+        ========================================================================
+    -->
     <script>
-        window.onload = function() {
+        (function() {
+            // 1. กำหนดค่า Static Configuration (ค่าที่ไม่เปลี่ยนตาม Request)
+            var tenantName = "QASThaioilB2C"; // ชื่อ Tenant ของคุณ
+            var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; // ชื่อ User Flow สำหรับ Reset Password
+
+            // 2. ฟังก์ชันดึงค่าจาก URL (Dynamic Configuration)
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(window.location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            function setupCustomForgotPasswordLink() {
+                var forgotPasswordLink = document.getElementById('forgotPassword');
+                
+                if (forgotPasswordLink) {
+                    forgotPasswordLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // ดึงค่า client_id และ redirect_uri จาก URL ปัจจุบัน
+                        var clientId = getUrlParameter('client_id');
+                        var redirectUri = getUrlParameter('redirect_uri');
+                        var nonce = getUrlParameter('nonce') || 'default-nonce';
+                        
+                        // ตรวจสอบว่ามีค่าครบหรือไม่
+                        if (!clientId || !redirectUri) {
+                            console.error("Missing client_id or redirect_uri in the URL");
+                            // Fallback (ถ้าต้องการ) หรือแจ้งเตือนผู้ใช้
+                            return; 
+                        }
+
+                        // สร้าง URL สำหรับ Redirect
+                        var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/" + passwordResetPolicyId + "/oauth2/v2.0/authorize?" +
+                            "client_id=" + clientId +
+                            "&response_type=id_token" + // ใช้ id_token ตามตัวอย่าง URL ของคุณ
+                            "&redirect_uri=" + encodeURIComponent(redirectUri) +
+                            "&response_mode=fragment" + // ใช้ fragment ตามตัวอย่าง URL ของคุณ
+                            "&scope=openid profile offline_access" + // Scope มาตรฐาน
+                            "&state=arbitrary_state_string" + 
+                            "&nonce=" + nonce;
+
+                        // สั่ง Redirect
+                        window.location.href = resetUrl;
+                    });
+                }
+            }
+
+            // ใช้ MutationObserver เพื่อคอยดูว่า B2C Inject ปุ่มเข้ามาหรือยัง
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (document.getElementById('forgotPassword')) {
+                        setupCustomForgotPasswordLink();
+                    }
+                });
+            });
+
+            // เริ่มสังเกตการณ์ที่ div id="api"
             var apiDiv = document.getElementById('api');
+            if(apiDiv) {
+                observer.observe(apiDiv, { childList: true, subtree: true });
+            }
+            
+            // กรณีที่มีอยู่แล้วตอนโหลด
+            window.addEventListener('load', setupCustomForgotPasswordLink);
+
+            // Mock สำหรับ Preview ใน Canvas เท่านั้น (ลบส่วนนี้ได้เมื่อ Deploy)
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
                 apiDiv.innerHTML = `
                     <div class="localAccount">
                         <div class="entry">
                             <div class="entry-item">
                                 <label for="signInName">User ID</label>
-                                <!-- Simulated scenario where ID is signInName to test new CSS -->
                                 <input type="text" id="signInName" name="SignInName" placeholder="Enter your User ID">
                             </div>
                             <div class="entry-item">
@@ -303,8 +369,7 @@
                     </div>
                 `;
             }
-        };
+        })();
     </script>
 </body>
 </html>
-
