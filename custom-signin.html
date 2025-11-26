@@ -188,12 +188,14 @@
            ========================================================================
         */
         
-        /* Custom Forgot Password Link Container */
+        /* Custom Forgot Password Link Container 
+           (Placed OUTSIDE #api, positioned below the form) 
+        */
         .custom-forgot-password-container {
-            display: none; /* ซ่อนไว้ก่อน JS จะย้ายเข้าที่ */
             text-align: right;
-            margin-bottom: 10px; /* ระยะห่างระหว่างลิงก์กับปุ่ม Sign In */
-            margin-top: -5px; /* ดึงขึ้นเล็กน้อยให้ชิด Password */
+            margin-top: 10px;
+            margin-bottom: 20px;
+            display: block; /* Ensure it's visible */
         }
         
         #customForgotPassword {
@@ -262,7 +264,10 @@
                         <div id="api" role="main">
                         </div>
 
-                        <!-- CUSTOM FORGOT PASSWORD LINK (Hidden initially) -->
+                        <!-- 
+                            CUSTOM FORGOT PASSWORD LINK (PLACED OUTSIDE API) 
+                            This will NOT be cleared by B2C injection.
+                        -->
                         <div class="custom-forgot-password-container">
                             <a id="customForgotPassword">Forgot your password?</a>
                         </div>
@@ -290,7 +295,7 @@
 
     <!-- 
         ========================================================================
-        JAVASCRIPT FOR CUSTOM PASSWORD RESET & DOM MANIPULATION
+        JAVASCRIPT FOR CUSTOM PASSWORD RESET
         ========================================================================
     -->
     <script>
@@ -307,29 +312,12 @@
                 return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
             }
 
-            // 3. Function to move Custom Link INTO the Form
-            function moveCustomLinkToForm() {
-                var apiDiv = document.getElementById('api');
-                var customLinkContainer = document.querySelector('.custom-forgot-password-container');
-                
-                // ค้นหาปุ่ม Sign In (หรือ div .buttons)
-                var buttonsDiv = apiDiv ? apiDiv.querySelector('.buttons') : null;
-
-                // ถ้าย้ายยังไม่สำเร็จ และเจอองค์ประกอบครบ
-                if (apiDiv && customLinkContainer && buttonsDiv && customLinkContainer.parentNode !== buttonsDiv.parentNode) {
-                    // ย้าย Link ไปแทรก "ก่อนหน้า" ปุ่ม Sign In
-                    buttonsDiv.parentNode.insertBefore(customLinkContainer, buttonsDiv);
-                    // แสดงผล Link
-                    customLinkContainer.style.display = 'block';
-                }
-            }
-
-            // 4. Setup Click Logic
+            // 3. Setup Click Logic (Simplified - No moving needed)
             function setupCustomLinkAction() {
                 var customLink = document.getElementById('customForgotPassword');
                 
                 if (customLink) {
-                    // Remove existing listeners to prevent duplicates (just in case)
+                    // Remove existing listeners to prevent duplicates
                     var newLink = customLink.cloneNode(true);
                     customLink.parentNode.replaceChild(newLink, customLink);
                     customLink = newLink;
@@ -358,29 +346,15 @@
                     });
                 }
             }
-
-            // 5. Observer & Initialization
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    // เมื่อ B2C render ปุ่ม Sign In เสร็จ ให้ย้าย Link ของเราเข้าไป
-                    if (document.querySelector('#api .buttons')) {
-                        moveCustomLinkToForm();
-                    }
-                });
-            });
-
-            var apiDiv = document.getElementById('api');
-            if(apiDiv) {
-                observer.observe(apiDiv, { childList: true, subtree: true });
-            }
             
-            // เรียกใช้งานครั้งแรก (เผื่อ DOM พร้อมแล้ว)
-            window.addEventListener('load', function() {
-                setupCustomLinkAction();
-                moveCustomLinkToForm();
-            });
+            // เรียกใช้งานทันทีเมื่อโหลดหน้า (เพราะปุ่มของเราอยู่ใน HTML แล้ว ไม่ได้รอ Inject)
+            window.addEventListener('load', setupCustomLinkAction);
+            
+            // เรียกซ้ำอีกครั้งเพื่อความชัวร์ (กรณี Script ทำงานก่อน DOM Ready)
+            setupCustomLinkAction();
 
-            // Mock for Preview (To verify position)
+            // Mock for Preview (To verify visual layout)
+            var apiDiv = document.getElementById('api');
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
                 apiDiv.innerHTML = `
                     <div class="localAccount">
@@ -392,19 +366,15 @@
                             <div class="entry-item">
                                 <label for="password">Password</label>
                                 <input type="password" id="password" name="Password" placeholder="Enter your password">
-                                <!-- Original B2C link hidden by CSS -->
+                                <!-- Default B2C link (Hidden by CSS) -->
                                 <a href="#" id="forgotPassword">Forgot your password?</a>
                             </div>
-                            <!-- Link should be moved HERE by JS -->
                             <div class="buttons">
                                 <button id="next">Sign In</button>
                             </div>
                         </div>
                     </div>
                 `;
-                // Manually trigger move for mock
-                setTimeout(moveCustomLinkToForm, 100);
-                setupCustomLinkAction();
             }
         })();
     </script>
