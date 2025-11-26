@@ -256,16 +256,14 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        function onCustomForgotPasswordClick(event) {
-            if (event) event.preventDefault();
-            
+        document.addEventListener("DOMContentLoaded", function() {
             // 1. Static Configuration
             var tenantName = "QASThaioilB2C"; 
             var passwordResetPolicyId = "B2C_1_ThaioilSmartBizQAS-ResetPass"; 
             
             // Default Values (ใช้กรณี URL ไม่มี parameter)
             var defaultClientId = "17fa95e8-72c8-4b83-bc4f-a8aea03dde93"; 
-            var defaultRedirectUri = "https://qthaioilsmartbiz.thaioilgroup.com/";
+            var defaultRedirectUri = "https://qthaioilsmartbiz.thaioilgroup.com";
 
             // 2. Retrieve Params
             function getUrlParameter(name) {
@@ -279,8 +277,9 @@
             var redirectUri = getUrlParameter('redirect_uri') || defaultRedirectUri;
             
             // Log for debugging
-            console.log("Reset PW Clicked. ClientID:", clientId, "RedirectURI:", redirectUri);
+            console.log("Generating Reset PW Link. ClientID:", clientId, "RedirectURI:", redirectUri);
 
+            // Construct URL
             var resetUrl = "https://" + tenantName + ".b2clogin.com/" + tenantName + ".onmicrosoft.com/oauth2/v2.0/authorize?" +
                 "p=" + passwordResetPolicyId +
                 "&client_id=" + clientId +
@@ -290,8 +289,14 @@
                 "&response_type=id_token" +
                 "&prompt=login";
 
-            window.location.href = resetUrl;
-        }
+            // Set href directly (More robust than onclick)
+            var linkElement = document.getElementById('customForgotPassword');
+            if (linkElement) {
+                linkElement.href = resetUrl;
+            } else {
+                console.error("Link element 'customForgotPassword' not found!");
+            }
+        });
     </script>
 </head>
 <body>
@@ -321,7 +326,8 @@
                             วางไว้ต่อจาก API ตรงๆ (อยู่ใต้ปุ่ม Sign In) เพื่อความชัวร์
                         -->
                         <div class="custom-forgot-password-container">
-                            <a id="customForgotPassword" href="#" onclick="onCustomForgotPasswordClick(event)">Forgot your password?</a>
+                            <!-- เริ่มต้นเป็น href="#" แล้ว Script จะมาแก้ให้ -->
+                            <a id="customForgotPassword" href="#">Forgot your password?</a>
                         </div>
 
                         <!-- Instruction Box -->
@@ -374,4 +380,3 @@
     </script>
 </body>
 </html>
-
