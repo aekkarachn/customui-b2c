@@ -111,13 +111,19 @@
             display: none; 
         }
 
-        /* Entry Item Layout */
+        /* Entry Item Layout - UPDATED FOR TIGHTER SPACING */
         #api .entry .entry-item {
             position: relative; 
             width: 100%; 
             padding-top: 6px; 
-            padding-bottom: 25px; /* เพิ่มพื้นที่ด้านล่าง เพื่อให้ลิงก์มีที่อยู่ */
+            padding-bottom: 5px; /* ลดลงจาก 25px เพื่อให้ Username ชิด Password */
             display: block;
+            margin-bottom: 5px; /* ลดลงจาก 10px */
+        }
+
+        /* เพิ่มพื้นที่เฉพาะช่อง Password (ตัวที่ 2) เพื่อรองรับลิงก์ Forgot Password */
+        #api .entry .entry-item:nth-of-type(2) {
+            padding-bottom: 25px;
             margin-bottom: 10px;
         }
 
@@ -159,7 +165,7 @@
             color: white;
             border-radius: .5rem;
             font-size: 1em;
-            margin-top: 15px; /* เพิ่มระยะห่างจาก Link ด้านบน */
+            margin-top: 10px;
             cursor: pointer;
             font-family: inherit;
             font-weight: 600;
@@ -168,9 +174,7 @@
             background-color: #1662c7;
         }
 
-        /* FORGOT PASSWORD LINK STYLING (ของเดิมจาก B2C)
-           ใช้ Absolute positioning เพื่อดึงลงมามุมขวาล่างของกล่อง Input Password
-        */
+        /* FORGOT PASSWORD LINK STYLING */
         #api .forgot-password, 
         #api a#forgotPassword,
         #api .entry-item a {
@@ -182,8 +186,8 @@
             
             /* จัดตำแหน่ง */
             position: absolute;
-            bottom: 0; /* ชิดด้านล่างของ .entry-item */
-            right: 0;  /* ชิดขวา */
+            bottom: 0;
+            right: 0; 
             width: auto;
             margin: 0;
             z-index: 10;
@@ -291,7 +295,7 @@
         </div>
     </div>
 
-    <!-- Mock for Preview (Showing default B2C structure) -->
+    <!-- Mock for Preview -->
     <script>
         window.onload = function() {
             var apiDiv = document.getElementById('api');
@@ -300,16 +304,16 @@
                     <div class="localAccount">
                         <div class="entry">
                             <div class="entry-item">
-                                <label for="signInName">User ID</label>
-                                <input type="text" id="signInName" name="SignInName" placeholder="Enter your User ID">
+                                <label for="signInName">Username</label>
+                                <input type="text" id="signInName" name="SignInName" placeholder="Username">
                             </div>
                             <div class="entry-item">
                                 <label for="password">Password</label>
-                                <input type="password" id="password" name="Password" placeholder="Enter your password">
+                                <input type="password" id="password" name="Password" placeholder="Password">
                                 <a href="#" id="forgotPassword">Forgot your password?</a>
                             </div>
                             <div class="buttons">
-                                <button id="next">Sign In</button>
+                                <button id="next">Sign in</button>
                             </div>
                         </div>
                     </div>
