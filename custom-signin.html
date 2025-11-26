@@ -7,12 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <!-- Google Fonts: Noto Sans Thai -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap CSS (Original Link) -->
     <link href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
     <style id="common">
@@ -265,16 +263,13 @@
                     <div class="panel-body">
                         <img class="companyLogo" data-tenant-branding-logo="true" src="https://lh3.googleusercontent.com/d/1UcyeC28nAw3iBZYW0ILPUBDtHKmqX0aF" alt="Company Logo">
                         
-                        <!-- Custom Header -->
                         <div class="custom-header">
                             <h3 style="text-align: center; margin-bottom: 25px; font-size: 1.5em; font-weight: bold; color: #333;">Sign In</h3>
                         </div>
 
-                        <!-- B2C API Injection Point -->
                         <div id="api" role="main">
                         </div>
 
-                        <!-- Instruction Box -->
                         <div class="userid-explanation">
                             <p class="title">Username (ชื่อบัญชีผู้ใช้งาน):</p>
                             <ul>
@@ -286,7 +281,7 @@
                             <ul>
                                 <li>ตัวอักษรภาษาอังกฤษทั้งพิมพ์ใหญ่ – พิมพ์เล็ก</li>
                                 <li>ตัวเลข และอักขระพิเศษ เช่น !, @, #, $</li>
-                                <li>ความยาว 8 - 64 ตัวอักษร</li>
+                                <li>ความยาว 8 - 16 ตัวอักษร</li>
                             </ul>
                         </div>
                     </div>
@@ -295,9 +290,12 @@
         </div>
     </div>
 
-    <!-- Mock for Preview -->
     <script>
-        window.onload = function() {
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // --------------------------------------------------------
+            // ส่วนที่ 1: Mock HTML สำหรับดู Preview (จะทำงานเฉพาะตอน Local Test)
+            // --------------------------------------------------------
             var apiDiv = document.getElementById('api');
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
                 apiDiv.innerHTML = `
@@ -319,7 +317,44 @@
                     </div>
                 `;
             }
-        };
+
+            // --------------------------------------------------------
+            // ส่วนที่ 2: Logic สลับ Flow เมื่อกดปุ่ม Forgot Password
+            // --------------------------------------------------------
+            
+            // ชื่อ Policy ต้องตรงกับใน Azure (Case-sensitive)
+            const currentSignInFlow = "B2C_1_ThaioilSmartBizQAS-Sign-In";
+            const targetResetFlow = "B2C_1_ThaioilSmartBizQAS-ResetPass";
+
+            // หาปุ่ม Forgot Password (ID มาตรฐานของ Azure คือ forgotPassword)
+            const forgotPasswordLink = document.getElementById("forgotPassword");
+
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener("click", function(e) {
+                    e.preventDefault();
+
+                    // ดึง URL ปัจจุบัน
+                    let currentUrl = window.location.href;
+
+                    // ตรวจสอบว่า URL นี้มีชื่อ Sign-in Flow อยู่หรือไม่
+                    if (currentUrl.indexOf(currentSignInFlow) !== -1) {
+                        // กรณี Run บน Azure จริง: ทำการแทนที่ชื่อ Flow
+                        let newUrl = currentUrl.replace(currentSignInFlow, targetResetFlow);
+
+                        // ลบ error params ที่อาจค้างอยู่ (Optional เพื่อความสะอาด)
+                        newUrl = newUrl.replace(/([&?]error=[^&]*)/g, "");
+                        newUrl = newUrl.replace(/([&?]error_description=[^&]*)/g, "");
+
+                        // Redirect ไป URL ใหม่
+                        window.location.href = newUrl;
+                    } else {
+                        // กรณี Local Testing: แจ้งเตือนเพื่อให้รู้ว่าปุ่มทำงานแล้ว
+                        console.log("Local Test Mode: Script detected click.");
+                        alert("เมื่ออยู่บน Azure จริง ระบบจะ Redirect ไปที่ Flow: " + targetResetFlow);
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
