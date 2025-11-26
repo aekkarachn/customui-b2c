@@ -15,20 +15,10 @@
     <!-- Bootstrap CSS (Original Link) -->
     <link href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- 
-        ========================================================================
-        PART 1: CSS STYLES (คัดลอกมาจาก idpSelector.cshtml ต้นฉบับ)
-        ========================================================================
-    -->
     <style id="common">
-        /* Note: 'Google Sans' is a proprietary font. 
-           If not installed locally or hosted, it will fallback to 'Noto Sans Thai' or system sans-serif. 
-        */
-        
         /* General Layout Styles */
         html { background: 0 0; }
         body {
-            /* UPDATED: Font Family to Google Sans and Noto Sans Thai */
             font-family: 'Google Sans', 'Noto Sans Thai', 'Segoe UI', "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-attachment: fixed;
             background-color: #fff;
@@ -40,60 +30,105 @@
             margin: 0;
             padding: 0;
         }
-        p { margin: 0; }
-        a { text-decoration: underline; text-decoration-thickness: 1px; color: #296ec6; cursor: pointer;}
-        a:focus { outline: 0; border: 2px solid #000; }
-        input, select { border: 1px solid #605e5c; }
-        input::placeholder { color: #6a6a6a; opacity: 1; }
         
-        /* Background Image Handling */
+        /* Background & Logo */
         img[data-tenant-branding-background=true] {
             width: 100%; height: 100%; object-fit: cover; z-index: 0; position: fixed; left: 0; overflow: hidden; top: 0;
         }
         div[data-tenant-branding-background-color=true] {
             width: 100%; height: 100%; position: fixed; z-index: 0;
         }
+
+        /* ========================================================================
+           PART 1: LAYOUT & CENTERING FIXES (แก้ไขให้เหมือน Standard)
+           ========================================================================
+        */
+        .container { 
+            text-align: center; 
+            width: 100%; 
+            display: table; 
+            height: 100vh; 
+            padding: 0; 
+            position: relative; 
+            z-index: 1;
+        }
         
-        /* Container Layout */
-        .container { text-align: center; width: 100%; display: table; height: 100vh; padding: 0; position: relative; z-index: 1;}
-        #api { margin: 0 auto; }
-        .heading h1 { margin-bottom: 20px; }
-        .col-lg-6 { max-width: 470px; width: 100%; float: none; display: inline-block; vertical-align: top; padding: 0; }
-        .row { width: 100%; margin: 0; display: table-cell; vertical-align: middle; }
-        
-        /* Unified Container Styles */
+        /* จัด Row ให้เป็น Table Cell เพื่อรองรับ Vertical Align Middle */
+        .row {
+            width: 100%;
+            margin: 0;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        /* จัด Column ให้เป็น Inline Block และจำกัดความกว้างที่ 470px ตาม Standard */
+        .col-lg-6 {
+            max-width: 470px; /* Standard Width */
+            width: 100%;
+            float: none;
+            display: inline-block;
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        /* ตัวกล่อง Panel */
         .unified_container .row .panel-default {
             padding: 40px 30px;
-            margin-top: auto;
-            margin-bottom: auto;
-            height: auto;
-            min-height: 300px; /* Reduced min-height since content is less */
+            margin: 0 auto; /* จัดกึ่งกลางแนวนอน */
+            height: auto; /* ให้สูงตามเนื้อหา */
             background-color: #fff;
             border-radius: .5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
         }
+
         .unified_container .row .panel-default .panel-body {
-            max-width: 380px; width: auto; margin: 0 auto; padding: 0;
+            max-width: 380px; 
+            width: auto; 
+            margin: 0 auto; 
+            padding: 0;
         }
+
         .unified_container .row .panel-default .panel-body .companyLogo {
-            display: block; max-width: 100%; width: auto; height: 80px; /* Increased height slightly for visibility */
-            margin: 0 auto 20px auto;
-            object-fit: contain; /* Ensure logo fits within dimensions */
+            display: block; 
+            max-width: 100%; 
+            width: auto; 
+            height: 80px; 
+            margin: 0 auto 20px auto; 
+            object-fit: contain;
         }
+
+        /* ========================================================================
+           PART 2: B2C SPECIFIC OVERRIDES (Custom UI)
+           ========================================================================
+        */
         
-        /* API Section Layout */
-        .unified_container .row .panel-default #api { display: table; margin: 0; width: 100%; }
-        
-        /* Form Inputs */
-        .unified_container .row .panel-default #api .localAccount .entry .entry-item {
-            position: relative; width: 100%; padding-top: 6px; padding-bottom: 6px; display: block;
+        #api .heading, #api .intro {
+            display: none; 
         }
-        .unified_container .row .panel-default #api .localAccount .entry .entry-item label {
-            display: block; text-align: left; font-weight: 600; margin-bottom: 5px;
+
+        #api .entry .entry-item {
+            position: relative; 
+            width: 100%; 
+            padding-top: 6px; 
+            padding-bottom: 6px; 
+            display: block;
+            margin-bottom: 15px;
         }
-        .unified_container .row .panel-default #api .localAccount .entry .entry-item input {
+
+        #api label {
+            display: block; 
+            text-align: left; 
+            font-weight: 600; 
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        #api input#logonIdentifier, 
+        #api input#password {
             outline: 0;
             background-color: #fff !important;
+            border: 1px solid #605e5c !important;
             border-radius: .5rem !important;
             color: #555;
             display: inline-block;
@@ -103,11 +138,10 @@
             padding: 6px 12px;
             width: 100% !important;
             box-sizing: border-box;
-            font-family: inherit; /* Ensure input inherits the new font */
+            font-family: inherit;
         }
 
-        /* Form Buttons */
-        .buttons button {
+        #api #next {
             width: 100%;
             height: 45px;
             background-color: #296ec6;
@@ -117,109 +151,114 @@
             font-size: 1em;
             margin-top: 20px;
             cursor: pointer;
-            font-family: inherit; /* Ensure button inherits the new font */
+            font-family: inherit;
             font-weight: 600;
         }
-        .buttons button:hover {
+        #api #next:hover {
             background-color: #1662c7;
         }
-        
-        /* Links */
-        .create p, .forgot-password {
-            margin-top: 15px;
-            text-align: left;
-            font-size: 0.9em;
-        }
-        .forgot-password {
+
+        #api .forgot-password, #api a#forgotPassword {
             text-align: right;
             display: block;
             margin-top: 5px;
+            font-size: 0.9em;
+            color: #296ec6;
+            text-decoration: underline;
+        }
+        
+        #api .create {
+            display: none;
         }
 
-        /* NEW STYLE: User ID Explanation Box 
-           Converting Tailwind classes to CSS
+        #api .error.itemLevel {
+            color: #a61e0c;
+            text-align: left;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: block;
+        }
+        #api .error.pageLevel {
+            color: #a61e0c;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        /* ========================================================================
+           PART 3: INSTRUCTION BOX STYLES
+           ========================================================================
         */
         .userid-explanation {
-            margin-top: 30px; /* Added margin-top for spacing from the form */
+            margin-top: 30px;
             margin-bottom: 10px;
             text-align: left;
-            border-top: 1px solid #eeeeee; /* Optional: adds a faint separator line */
+            border-top: 1px solid #eeeeee;
             padding-top: 20px;
         }
         .userid-explanation .title {
-            padding: 0 4px; /* px-1 */
-            font-size: 0.85em; /* text-xs */
-            color: #4b5563; /* text-gray-600 */
-            font-weight: bold; /* font-bold */
-            margin-bottom: 8px; /* mb-2 */
+            padding: 0 4px;
+            font-size: 0.85em;
+            color: #4b5563;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
         .userid-explanation ul {
-            list-style-type: disc; /* list-disc */
-            list-style-position: inside; /* list-inside */
-            padding: 0 4px; /* px-1 */
-            margin-top: 4px; /* mt-1 */
+            list-style-type: disc;
+            list-style-position: inside;
+            padding: 0 4px;
+            margin-top: 4px;
             padding-left: 10px;
         }
         .userid-explanation ul li {
-            font-size: 0.85em; /* text-xs */
-            color: #6b7280; /* text-gray-500 */
-            margin-bottom: 4px; /* space-y-2 */
-            line-height: 1.5;
-        }
-        
-        .userid-explanation p:not(.title) {
-            padding-left: 14px; /* mimic list indentation for plain p tags if used */
             font-size: 0.85em;
             color: #6b7280;
             margin-bottom: 4px;
+            line-height: 1.5;
         }
 
-        /* Media Queries for Mobile (from original) */
         @media (max-width: 600px) {
             .container.unified_container .row .panel.panel-default .panel-body { padding: 2rem 1rem; }
             .unified_container .row .panel-default { height: auto; padding: 20px; }
-            img[data-tenant-branding-background=true] { display: none; } /* Hide bg on mobile */
-            .container { background-color: #f0f0f0; } /* Fallback bg */
+            img[data-tenant-branding-background=true] { display: none; }
+            .container { background-color: #f0f0f0; }
         }
     </style>
 </head>
 <body>
     
-    <!-- Background Image Container -->
     <div id="background_branding_container" data-tenant-branding-background-color="true">
-      <!-- Changed Background Image URL -->
       <img data-tenant-branding-background="true" src="https://lh3.googleusercontent.com/d/1XhWzByGqB-5SAw-hoXz7qTi4BZmLOoBU" alt="Background Image"/>
     </div>
 
-    <!-- Main Content Container -->
     <div class="container unified_container" role="presentation">
         <div class="row">
             <div class="col-lg-6">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <!-- Company Logo: Changed URL -->
                         <img class="companyLogo" data-tenant-branding-logo="true" src="https://lh3.googleusercontent.com/d/1UcyeC28nAw3iBZYW0ILPUBDtHKmqX0aF" alt="Company Logo">
                         
-                        <div id="api" role="main">
-							<!-- Ingest data from B2C -->
+                        <!-- Custom Header -->
+                        <div class="custom-header">
+                            <h3 style="text-align: center; margin-bottom: 25px; font-size: 1.5em; font-weight: bold; color: #333;">Sign In</h3>
                         </div>
+
+                        <!-- B2C API Injection Point -->
+                        <div id="api" role="main">
+                        </div>
+
+                        <!-- Instruction Box -->
                         <div class="userid-explanation">
-                            <p class="title">
-                                Username (ชื่อบัญชีผู้ใช้งาน): 
-                            </p>
-                            <!-- Using list for better structure with bullets -->
+                            <p class="title">Username (ชื่อบัญชีผู้ใช้งาน):</p>
                             <ul>
                                 <li>รูปแบบ: zz ตามด้วย ชื่อจริง + นามสกุล (ติดกัน, ตัวพิมพ์เล็ก)</li>
                                 <li>ตัวอย่าง: Aliyah Chan</li>
                                 <li>Username: zzaliyahc</li>
                             </ul>
-                            <p class="title" style="margin-top: 15px;">
-                                Password (รหัสผ่าน):
-                            </p>
+                            <p class="title" style="margin-top: 15px;">Password (รหัสผ่าน):</p>
                             <ul>
                                 <li>ตัวอักษรภาษาอังกฤษทั้งพิมพ์ใหญ่ – พิมพ์เล็ก</li>
                                 <li>ตัวเลข และอักขระพิเศษ เช่น !, @, #, $</li>
-                                <li>ความยาว 8 - 16 ตัวอักษร</li>
+                                <li>ความยาว 8 - 64 ตัวอักษร</li>
                             </ul>
                         </div>
                     </div>
@@ -227,5 +266,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Script for Preview Only -->
+    <script>
+        window.onload = function() {
+            var apiDiv = document.getElementById('api');
+            if (apiDiv && apiDiv.innerHTML.trim() === "") {
+                apiDiv.innerHTML = `
+                    <div class="localAccount">
+                        <div class="entry">
+                            <div class="entry-item">
+                                <label for="logonIdentifier">User ID</label>
+                                <input type="text" id="logonIdentifier" name="LogonIdentifier" placeholder="Enter your User ID">
+                            </div>
+                            <div class="entry-item">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="Password" placeholder="Enter your password">
+                                <a href="#" id="forgotPassword">Forgot your password?</a>
+                            </div>
+                            <div class="buttons">
+                                <button id="next">Sign In</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+    </script>
 </body>
 </html>
