@@ -40,7 +40,7 @@
         }
 
         /* ========================================================================
-           PART 1: LAYOUT & CENTERING FIXES (แก้ไขให้เหมือน Standard)
+           PART 1: LAYOUT & CENTERING FIXES
            ========================================================================
         */
         .container { 
@@ -53,7 +53,6 @@
             z-index: 1;
         }
         
-        /* จัด Row ให้เป็น Table Cell เพื่อรองรับ Vertical Align Middle */
         .row {
             width: 100%;
             margin: 0;
@@ -61,9 +60,8 @@
             vertical-align: middle;
         }
 
-        /* จัด Column ให้เป็น Inline Block และจำกัดความกว้างที่ 470px ตาม Standard */
         .col-lg-6 {
-            max-width: 470px; /* Standard Width */
+            max-width: 470px;
             width: 100%;
             float: none;
             display: inline-block;
@@ -71,11 +69,10 @@
             padding: 0;
         }
 
-        /* ตัวกล่อง Panel */
         .unified_container .row .panel-default {
             padding: 40px 30px;
-            margin: 0 auto; /* จัดกึ่งกลางแนวนอน */
-            height: auto; /* ให้สูงตามเนื้อหา */
+            margin: 0 auto;
+            height: auto;
             background-color: #fff;
             border-radius: .5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -107,13 +104,14 @@
             display: none; 
         }
 
+        /* UPDATED: Entry Item Styling for Absolute Positioning */
         #api .entry .entry-item {
-            position: relative; 
+            position: relative; /* สำคัญ: เพื่อให้ลูกที่เป็น absolute อ้างอิงจากกรอบนี้ */
             width: 100%; 
             padding-top: 6px; 
-            padding-bottom: 6px; 
+            padding-bottom: 25px; /* เพิ่มพื้นที่ด้านล่างไว้สำหรับลิงก์ Forgot Password */
             display: block;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
 
         #api label {
@@ -149,7 +147,7 @@
             color: white;
             border-radius: .5rem;
             font-size: 1em;
-            margin-top: 20px;
+            margin-top: 10px;
             cursor: pointer;
             font-family: inherit;
             font-weight: 600;
@@ -158,13 +156,21 @@
             background-color: #1662c7;
         }
 
+        /* UPDATED: Forgot Password Link Styling - FORCE BOTTOM RIGHT */
         #api .forgot-password, #api a#forgotPassword {
             text-align: right;
             display: block;
-            margin-top: 5px;
             font-size: 0.9em;
             color: #296ec6;
             text-decoration: underline;
+            
+            /* เทคนิคบังคับตำแหน่ง */
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: auto;
+            margin: 0;
+            z-index: 10;
         }
         
         #api .create {
@@ -258,7 +264,7 @@
                             <ul>
                                 <li>ตัวอักษรภาษาอังกฤษทั้งพิมพ์ใหญ่ – พิมพ์เล็ก</li>
                                 <li>ตัวเลข และอักขระพิเศษ เช่น !, @, #, $</li>
-                                <li>ความยาว 8 - 64 ตัวอักษร</li>
+                                <li>ความยาว 8 - 16 ตัวอักษร</li>
                             </ul>
                         </div>
                     </div>
