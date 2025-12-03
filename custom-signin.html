@@ -114,9 +114,9 @@
             position: relative; 
             width: 100%; 
             padding-top: 6px; 
-            padding-bottom: 5px; 
+            padding-bottom: 5px; /* ลดลงจาก 25px เพื่อให้ Username ชิด Password */
             display: block;
-            margin-bottom: 5px; 
+            margin-bottom: 5px; /* ลดลงจาก 10px */
         }
 
         /* เพิ่มพื้นที่เฉพาะช่อง Password (ตัวที่ 2) เพื่อรองรับลิงก์ Forgot Password */
@@ -210,7 +210,7 @@
         }
 
         /* ========================================================================
-           PART 3: INSTRUCTION & DEBUG BOX STYLES
+           PART 3: INSTRUCTION BOX STYLES
            ========================================================================
         */
         .userid-explanation {
@@ -242,25 +242,6 @@
             line-height: 1.5;
         }
 
-        /* Styles สำหรับ Debug Console */
-        #debug-console {
-            display: none; /* ซ่อนไว้ก่อน จะแสดงเมื่อกดปุ่ม */
-            margin-top: 20px;
-            padding: 15px;
-            border: 2px dashed #d9534f;
-            background-color: #f9f2f4;
-            color: #c7254e;
-            font-size: 0.85em;
-            text-align: left;
-            word-break: break-all;
-            border-radius: 4px;
-        }
-        #debug-console strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 1.1em;
-        }
-
         @media (max-width: 600px) {
             .container.unified_container .row .panel.panel-default .panel-body { padding: 2rem 1rem; }
             .unified_container .row .panel-default { height: auto; padding: 20px; }
@@ -289,11 +270,6 @@
                         <div id="api" role="main">
                         </div>
 
-                        <div id="debug-console">
-                            <strong>[DEBUG] Generated URL:</strong>
-                            <span id="debug-url-value">Waiting for input...</span>
-                        </div>
-
                         <div class="userid-explanation">
                             <p class="title">Username (ชื่อบัญชีผู้ใช้งาน):</p>
                             <ul>
@@ -318,7 +294,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             
             // --------------------------------------------------------
-            // ส่วนที่ 1: Mock HTML สำหรับดู Preview
+            // ส่วนที่ 1: Mock HTML สำหรับดู Preview (จะทำงานเฉพาะตอน Local Test)
             // --------------------------------------------------------
             var apiDiv = document.getElementById('api');
             if (apiDiv && apiDiv.innerHTML.trim() === "") {
@@ -343,52 +319,39 @@
             }
 
             // --------------------------------------------------------
-            // ส่วนที่ 2: Logic สลับ Flow + DEBUG
+            // ส่วนที่ 2: Logic สลับ Flow เมื่อกดปุ่ม Forgot Password
             // --------------------------------------------------------
             
+            // ชื่อ Policy ต้องตรงกับใน Azure (Case-sensitive)
             const currentSignInFlow = "B2C_1_ThaioilSmartBizQAS-Sign-In";
             const targetResetFlow = "B2C_1_ThaioilSmartBizQAS-ResetPass";
 
+            // หาปุ่ม Forgot Password (ID มาตรฐานของ Azure คือ forgotPassword)
             const forgotPasswordLink = document.getElementById("forgotPassword");
-            // อ้างอิง Element สำหรับ Debug
-            const debugConsole = document.getElementById("debug-console");
-            const debugUrlSpan = document.getElementById("debug-url-value");
 
             if (forgotPasswordLink) {
                 forgotPasswordLink.addEventListener("click", function(e) {
                     e.preventDefault();
 
+                    // ดึง URL ปัจจุบัน
                     let currentUrl = window.location.href;
-                    let newUrl = "";
 
                     // ตรวจสอบว่า URL นี้มีชื่อ Sign-in Flow อยู่หรือไม่
-                    // ใช้ RegExp 'i' เพื่อไม่สนตัวพิมพ์เล็กใหญ่
-                    if (new RegExp(currentSignInFlow, "i").test(currentUrl)) {
-                        
-                        // 1. สร้าง URL ใหม่
-                        newUrl = currentUrl.replace(new RegExp(currentSignInFlow, "i"), targetResetFlow);
+                    if (currentUrl.indexOf(currentSignInFlow) !== -1) {
+                        // กรณี Run บน Azure จริง: ทำการแทนที่ชื่อ Flow
+						let newUrl = currentUrl.replace(new RegExp(currentSignInFlow, "i"), targetResetFlow);
 
-                        // ลบ error params (Clean up)
+                        // ลบ error params ที่อาจค้างอยู่ (Optional เพื่อความสะอาด)
                         newUrl = newUrl.replace(/([&?]error=[^&]*)/g, "");
                         newUrl = newUrl.replace(/([&?]error_description=[^&]*)/g, "");
 
+                        // Redirect ไป URL ใหม่
+                        window.location.href = newUrl;
                     } else {
-                        // กรณี Local Testing (URL ไม่ตรง Pattern)
-                        // สร้าง Mock URL เพื่อให้เห็นภาพ
-                        newUrl = "https://mock-b2c-url.com/" + targetResetFlow + "/oauth2/v2.0/authorize?client_id=debug";
-                        console.log("Local Test Mode Detected");
-                    }
+                        // กรณี Local Testing: แจ้งเตือนเพื่อให้รู้ว่าปุ่มทำงานแล้ว
+                        console.log("Local Test Mode: Script detected click.");
+                        alert("Redirect Flow: " + targetResetFlow);
 
-                    // 2. แสดงผลบนหน้าจอ (Debug Display)
-                    if (debugConsole && debugUrlSpan) {
-                        debugConsole.style.display = "block"; // โชว์กล่อง
-                        debugUrlSpan.textContent = newUrl;    // ใส่ข้อความ
-                    }
-
-                    // 3. ใช้ confirm เพื่อหยุดดูค่า ก่อน Redirect
-                    // ถ้าผู้ใช้กด OK -> ไปต่อ, กด Cancel -> อยู่หน้าเดิม (เพื่อ Copy URL)
-                    if (confirm("DEBUG MODE:\n\nURL ใหม่ถูกสร้างแล้วและแสดงอยู่ในกล่องสีแดงด้านล่าง\n\nกด [OK] เพื่อ Redirect ไปยังหน้านั้นทันที\nกด [Cancel] เพื่อหยุดดูค่า URL")) {
-                         window.location.href = newUrl;
                     }
                 });
             }
