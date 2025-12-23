@@ -37,10 +37,7 @@
             width: 100%; height: 100%; position: fixed; z-index: 0;
         }
 
-        /* ========================================================================
-           PART 1: LAYOUT & CENTERING FIXES
-           ========================================================================
-        */
+        /* Container Layout */
         .container { 
             text-align: center; 
             width: 100%; 
@@ -101,50 +98,65 @@
         }
 
         /* ========================================================================
-           PART 2: B2C SPECIFIC OVERRIDES (Custom UI)
+           PART 2: B2C SPECIFIC OVERRIDES (UPDATED FOR CHANGE PASSWORD)
            ========================================================================
         */
         
-        #api .heading, #api .intro {
-            display: none; 
+        /* ซ่อน Header และ Intro เดิมของ B2C เพราะเรามี Custom Header แล้ว */
+        #api .heading, #api .intro, #api .divider {
+            display: none !important; 
         }
 
-        /* Entry Item Layout - UPDATED FOR TIGHTER SPACING */
-        #api .entry .entry-item {
+        /* --- แก้ไข: ลบ Bullet Points และจัดระเบียบ Form --- */
+        #api ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #api li {
+            margin-bottom: 15px;
+        }
+        
+        /* ซ่อน Link "What is this?" ที่รกรุงรัง */
+        #api .tiny, #api .helpLink {
+            display: none !important;
+        }
+
+        /* จัดการ Layout ของ Input แต่ละบรรทัด */
+        #api .entry .entry-item,
+        #api .attrEntry {
             position: relative; 
             width: 100%; 
             padding-top: 6px; 
-            padding-bottom: 5px; /* ลดลงจาก 25px เพื่อให้ Username ชิด Password */
+            padding-bottom: 5px; 
             display: block;
-            margin-bottom: 5px; /* ลดลงจาก 10px */
+            margin-bottom: 5px; 
+            clear: both;
         }
 
-        /* เพิ่มพื้นที่เฉพาะช่อง Password (ตัวที่ 2) เพื่อรองรับลิงก์ Forgot Password */
-        #api .entry .entry-item:nth-of-type(2) {
-            padding-bottom: 25px;
-            margin-bottom: 10px;
-        }
-
+        /* Label Styling */
         #api label {
             display: block; 
             text-align: left; 
             font-weight: 600; 
             margin-bottom: 5px;
             color: #333;
+            float: none; /* ป้องกัน Label ลอย */
         }
 
-        /* INPUT SELECTOR */
+        /* INPUT STYLING - ครอบคลุมทั้ง Text และ Password */
         #api input[type="text"],
         #api input[type="email"],
         #api input[type="password"],
         #api input#logonIdentifier, 
-        #api input#signInName {
+        #api input#signInName,
+        #api .attrEntry input {
             outline: 0;
             background-color: #fff !important;
             border: 1px solid #605e5c !important;
             border-radius: .5rem !important;
             color: #555;
-            display: inline-block;
+            display: block; /* บังคับให้เต็มบรรทัด */
             font-size: 1em;
             height: 40px;
             line-height: 1.42857143;
@@ -152,10 +164,13 @@
             width: 100% !important;
             box-sizing: border-box;
             font-family: inherit;
+            margin-bottom: 0;
         }
 
-        /* Sign In Button */
-        #api #next {
+        /* --- BUTTON STYLING (Sign In + Continue + Cancel) --- */
+        /* รวม Selector #continue และ #cancel เข้าไปด้วย */
+        #api #next, 
+        #api #continue {
             width: 100%;
             height: 45px;
             background-color: #296ec6;
@@ -163,39 +178,42 @@
             color: white;
             border-radius: .5rem;
             font-size: 1em;
-            margin-top: 10px;
+            margin-top: 20px;
             cursor: pointer;
             font-family: inherit;
             font-weight: 600;
+            display: block;
         }
-        #api #next:hover {
+        
+        #api #next:hover, 
+        #api #continue:hover {
             background-color: #1662c7;
         }
 
-        /* FORGOT PASSWORD LINK STYLING */
-        #api .forgot-password, 
-        #api a#forgotPassword,
-        #api .entry-item a {
-            text-align: right;
-            display: block;
+        /* ปุ่ม Cancel ปรับให้เป็นแบบ Link หรือปุ่มสีเทา เพื่อให้ Continue เด่นกว่า */
+        #api #cancel {
+            width: 100%;
+            height: 40px;
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #555;
+            border-radius: .5rem;
             font-size: 0.9em;
-            color: #296ec6;
-            text-decoration: underline;
-            
-            /* จัดตำแหน่ง */
-            position: absolute;
-            bottom: 0;
-            right: 0; 
-            width: auto;
-            margin: 0;
-            z-index: 10;
-            line-height: 1.5;
+            margin-top: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            display: block;
         }
-        
-        #api .create {
-            display: none;
+        #api #cancel:hover {
+            background-color: #f5f5f5;
+            border-color: #ccc;
         }
 
+        /* ซ่อนปุ่ม Cancel ถ้าไม่อยากให้แสดง (Optional) */
+        /* #api #cancel { display: none; } */
+
+        /* Error Messages */
         #api .error.itemLevel {
             color: #a61e0c;
             text-align: left;
@@ -209,13 +227,17 @@
             margin-bottom: 15px;
         }
 
+        /* Buttons Container adjustment */
+        #api .buttons {
+            margin-top: 20px;
+        }
+
         /* ========================================================================
            PART 3: INSTRUCTION BOX STYLES
            ========================================================================
         */
         .userid-explanation {
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 25px;
             text-align: left;
             border-top: 1px solid #eeeeee;
             padding-top: 20px;
@@ -274,5 +296,6 @@
             </div>
         </div>
     </div>
+
 </body>
 </html>
