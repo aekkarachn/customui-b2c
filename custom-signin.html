@@ -37,10 +37,6 @@
             width: 100%; height: 100%; position: fixed; z-index: 0;
         }
 
-        /* ========================================================================
-           PART 1: LAYOUT & CENTERING FIXES
-           ========================================================================
-        */
         .container { 
             text-align: center; 
             width: 100%; 
@@ -99,11 +95,6 @@
             margin: 0 auto 20px auto; 
             object-fit: contain;
         }
-
-        /* ========================================================================
-           PART 2: B2C SPECIFIC OVERRIDES (Custom UI)
-           ========================================================================
-        */
         
         #api .heading, #api .intro {
             display: none; 
@@ -289,73 +280,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            
-            // --------------------------------------------------------
-            // ส่วนที่ 1: Mock HTML สำหรับดู Preview (จะทำงานเฉพาะตอน Local Test)
-            // --------------------------------------------------------
-            var apiDiv = document.getElementById('api');
-            if (apiDiv && apiDiv.innerHTML.trim() === "") {
-                apiDiv.innerHTML = `
-                    <div class="localAccount">
-                        <div class="entry">
-                            <div class="entry-item">
-                                <label for="signInName">Username</label>
-                                <input type="text" id="signInName" name="SignInName" placeholder="Username">
-                            </div>
-                            <div class="entry-item">
-                                <label for="password">Password</label>
-                                <input type="password" id="password" name="Password" placeholder="Password">
-                                <a href="#" id="forgotPassword">Forgot your password?</a>
-                            </div>
-                            <div class="buttons">
-                                <button id="next">Sign in</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --------------------------------------------------------
-            // ส่วนที่ 2: Logic สลับ Flow เมื่อกดปุ่ม Forgot Password
-            // --------------------------------------------------------
-            
-            // ชื่อ Policy ต้องตรงกับใน Azure (Case-sensitive)
-            const currentSignInFlow = "B2C_1_ThaioilSmartBizQAS-Sign-In";
-            const targetResetFlow = "B2C_1_ThaioilSmartBizQAS-ResetPass";
-
-            // หาปุ่ม Forgot Password (ID มาตรฐานของ Azure คือ forgotPassword)
-            const forgotPasswordLink = document.getElementById("forgotPassword");
-
-            if (forgotPasswordLink) {
-                forgotPasswordLink.addEventListener("click", function(e) {
-                    e.preventDefault();
-
-                    // ดึง URL ปัจจุบัน
-                    let currentUrl = window.location.href;
-
-                    // ตรวจสอบว่า URL นี้มีชื่อ Sign-in Flow อยู่หรือไม่
-                    if (currentUrl.indexOf(currentSignInFlow) !== -1) {
-                        // กรณี Run บน Azure จริง: ทำการแทนที่ชื่อ Flow
-						let newUrl = currentUrl.replace(new RegExp(currentSignInFlow, "i"), targetResetFlow);
-
-                        // ลบ error params ที่อาจค้างอยู่ (Optional เพื่อความสะอาด)
-                        newUrl = newUrl.replace(/([&?]error=[^&]*)/g, "");
-                        newUrl = newUrl.replace(/([&?]error_description=[^&]*)/g, "");
-
-                        // Redirect ไป URL ใหม่
-                        window.location.href = newUrl;
-                    } else {
-                        // กรณี Local Testing: แจ้งเตือนเพื่อให้รู้ว่าปุ่มทำงานแล้ว
-                        console.log("Local Test Mode: Script detected click.");
-                        alert("Redirect Flow: " + targetResetFlow);
-
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>
